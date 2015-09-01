@@ -16,8 +16,6 @@ import com.capgemini.starterkit.restclient.dataprovider.data.BookVO;
 import com.capgemini.starterkit.restclient.model.BookSearch;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -124,33 +122,6 @@ public class RestClientController {
 		 * Show specific text for an empty table.
 		 */
 		resultTable.setPlaceholder(new Label(resources.getString("table.emptyText")));
-
-		/*
-		 * When table row gets selected get the id of selected book.
-		 */
-		resultTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<BookVO>() {
-
-			@Override
-			public void changed(ObservableValue<? extends BookVO> observable, BookVO oldValue, BookVO newValue) {
-				if(newValue == null) {
-					return;
-				}
-
-				Task<Void> backgroundTask = new Task<Void>() {
-
-					@Override
-					protected Void call() throws Exception {
-						return null;
-					}
-
-					@Override
-					protected void succeeded() {
-						model.setId(newValue.getId());
-					}
-				};
-				new Thread(backgroundTask).start();
-			}
-		});
 	}
 
 	/**
@@ -231,6 +202,7 @@ public class RestClientController {
 		if(resultTable.getSelectionModel().getSelectedItem() == null) {
 			return;
 		}
+		Long bookId = resultTable.getSelectionModel().getSelectedItem().getId();
 
 		Task<Void> backgroundTask = new Task<Void>() {
 
@@ -240,7 +212,7 @@ public class RestClientController {
 					/*
 					 * Remove the book.
 					 */
-					dataProvider.deleteBook(model.getId());
+					dataProvider.deleteBook(bookId);
 				} catch (ClientProtocolException e) {
 					throw e;
 				} catch (IOException e) {
@@ -255,7 +227,7 @@ public class RestClientController {
 				/*
 				 * Remove the book from model.
 				 */
-				model.resultProperty().removeIf(b -> b.getId() == model.getId());
+				model.resultProperty().removeIf(b -> b.getId() == bookId);
 			}
 
 		};
