@@ -4,15 +4,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 
 import com.capgemini.starterkit.restclient.dataprovider.DataProvider;
-import com.capgemini.starterkit.restclient.dataprovider.data.AuthorVO;
 import com.capgemini.starterkit.restclient.dataprovider.data.BookVO;
+import com.capgemini.starterkit.restclient.mapper.AuthorMapper;
 import com.capgemini.starterkit.restclient.model.BookSearch;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -63,6 +61,15 @@ public class RestClientController {
 	private Button deleteButton;
 
 	@FXML
+	private TextField bookTitleField;
+
+	@FXML
+	private TextField authorsField;
+
+	@FXML
+	private Button addBookButton;
+
+	@FXML
 	private TableView<BookVO> resultTable;
 
 	@FXML
@@ -77,6 +84,8 @@ public class RestClientController {
 	private final DataProvider dataProvider = DataProvider.INSTANCE;
 
 	private final BookSearch model = new BookSearch();
+
+	private final AuthorMapper authorMapper = new AuthorMapper();
 
 	/**
 	 * The JavaFX runtime instantiates this controller.
@@ -106,6 +115,7 @@ public class RestClientController {
 		titleField.textProperty().bindBidirectional(model.titleProperty());
 		resultTable.itemsProperty().bind(model.resultProperty());
 		searchButton.disableProperty().bind(titleField.textProperty().isEmpty());
+		addBookButton.disableProperty().bind(bookTitleField.textProperty().isEmpty());
 	}
 
 	private void initializeResultTable() {
@@ -116,7 +126,7 @@ public class RestClientController {
 		idColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getId().toString()));
 		titleColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getTitle()));
 		authorsColumn.setCellValueFactory(
-				cellData -> new ReadOnlyStringWrapper(createAuthorsString(cellData.getValue().getAuthors())));
+				cellData -> new ReadOnlyStringWrapper(authorMapper.mapToString(cellData.getValue().getAuthors())));
 
 		/*
 		 * Show specific text for an empty table.
@@ -179,19 +189,49 @@ public class RestClientController {
 		new Thread(backgroundTask).start();
 	}
 
-	private String createAuthorsString(Set<AuthorVO> authors) {
-		StringBuilder builder = new StringBuilder();
+	@FXML
+	private void addBookButtonAction() {
 
-		Iterator<AuthorVO> iterator = authors.iterator();
-		while (iterator.hasNext()) {
-			AuthorVO author = iterator.next();
-			builder.append(author.getFirstName() + " " + author.getLastName());
-			if (iterator.hasNext()) {
-				builder.append(", ");
+		Task<Void> backgroundTask = new Task<Void>() {
+
+			// BookVO book = new BookVO(null,
+			// bookTitleField.textProperty().get(),
+			// new HashSet<AuthorVO>(Arrays.asList(new AuthorVO(null, "Test",
+			// "Author"))));
+			BookVO book = new BookVO(null, bookTitleField.textProperty().get(),
+					authorMapper.mapToSet(authorsField.textProperty().get()));
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+					/*
+					 * Add the book.
+					 */
+					BookVO addedBook = dataProvider.addBook(book);
+					if (addedBook.getTitle().startsWith(model.getTitle())) {
+						model.resultProperty().add(addedBook);
+					}
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				return null;
 			}
-		}
 
-		return builder.toString();
+			@Override
+			protected void succeeded() {
+
+			}
+
+		};
+
+		/*
+		 * Start the background task.
+		 */
+
+		new Thread(backgroundTask).start();
 	}
 
 	@FXML
@@ -199,7 +239,7 @@ public class RestClientController {
 		/*
 		 * If no row is selected, no book will be deleted.
 		 */
-		if(resultTable.getSelectionModel().getSelectedItem() == null) {
+		if (resultTable.getSelectionModel().getSelectedItem() == null) {
 			return;
 		}
 		Long bookId = resultTable.getSelectionModel().getSelectedItem().getId();
