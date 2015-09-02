@@ -15,7 +15,10 @@ public class AuthorMapper {
 			String[] authorsName = fullName.split(" ");
 
 			String lastName = authorsName[authorsName.length - 1];
-			String firstName = fullName.substring(0, fullName.length() - lastName.length() - 1);
+			String firstName = "";
+			if(authorsName.length > 1) {
+				firstName = fullName.substring(0, fullName.length() - lastName.length() - 1);
+			}
 
 			authors.add(new AuthorVO(null, firstName, lastName));
 		}
@@ -29,7 +32,10 @@ public class AuthorMapper {
 		Iterator<AuthorVO> iterator = authorsSet.iterator();
 		while (iterator.hasNext()) {
 			AuthorVO author = iterator.next();
-			builder.append(author.getFirstName() + " " + author.getLastName());
+			if(!author.getFirstName().isEmpty()) {
+				builder.append(author.getFirstName() + " ");
+			}
+			builder.append(author.getLastName());
 			if (iterator.hasNext()) {
 				builder.append(", ");
 			}
