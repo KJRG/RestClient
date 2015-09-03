@@ -39,7 +39,14 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create and execute HTTP GET request.
 		 */
+		/*
+		 * REV: utworzenie obiketu HttpClient jest kosztowne
+		 * ten obiekt powinien byc zdefiniowany jako pole w klasie i tworzony w konstruktorze
+		 */
 		CloseableHttpClient httpClient = HttpClients.createDefault();
+		/*
+		 * REV: adres powinien byc pobrany z pliku konfiguracyjnego
+		 */
 		HttpGet httpGet = new HttpGet("http://localhost:9721/workshop/rest/books/books-by-title?titlePrefix=" + title);
 		CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 		String response = EntityUtils.toString(httpResponse.getEntity());
@@ -53,10 +60,20 @@ public class DataProviderImpl implements DataProvider {
 			books = mapper.readValue(response, new TypeReference<Collection<BookVO>>() {
 			});
 		} catch (JsonParseException e) {
+			/*
+			 * REV: uzywaj loggera
+			 * Lepiej rzucic wyjatek i pokazac blad w GUI
+			 */
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
+			/*
+			 * REV: j.w.
+			 */
 			e.printStackTrace();
 		} catch (IOException e) {
+			/*
+			 * REV: j.w.
+			 */
 			e.printStackTrace();
 		}
 
@@ -70,7 +87,13 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create HTTP POST request.
 		 */
+		/*
+		 * REV: j.w.
+		 */
 		CloseableHttpClient httpClient = HttpClients.createDefault();
+		/*
+		 * REV: j.w.
+		 */
 		HttpPost httpPost = new HttpPost("http://localhost:9721/workshop/rest/books/book");
 		httpPost.addHeader("Content-Type", "application/json");
 
@@ -82,6 +105,9 @@ public class DataProviderImpl implements DataProvider {
 		try {
 			bookJson = mapper.writeValueAsString(book);
 		} catch (JsonProcessingException e) {
+			/*
+			 * REV: nie ma sensu lapac wyjatku skoro nic nie robisz i zaraz rzucasz go dalej
+			 */
 			throw e;
 		}
 
@@ -99,8 +125,14 @@ public class DataProviderImpl implements DataProvider {
 		try {
 			httpResponse = httpClient.execute(httpPost);
 		} catch (ClientProtocolException e) {
+			/*
+			 * REV: j.w.
+			 */
 			throw e;
 		} catch (IOException e) {
+			/*
+			 * REV: j.w.
+			 */
 			throw e;
 		}
 		String response = EntityUtils.toString(httpResponse.getEntity());
@@ -112,10 +144,19 @@ public class DataProviderImpl implements DataProvider {
 		try {
 			savedBook = mapper.readValue(response, BookVO.class);
 		} catch (JsonParseException e) {
+			/*
+			 * REV: j.w.
+			 */
 			throw e;
 		} catch (JsonMappingException e) {
+			/*
+			 * REV: j.w.
+			 */
 			throw e;
 		} catch (IOException e) {
+			/*
+			 * REV: j.w.
+			 */
 			throw e;
 		}
 
@@ -128,7 +169,13 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create and execute HTTP DELETE request.
 		 */
+		/*
+		 * REV: j.w.
+		 */
 		CloseableHttpClient httpClient = HttpClients.createDefault();
+		/*
+		 * REV: j.w.
+		 */
 		HttpDelete httpDelete = new HttpDelete("http://localhost:9721/workshop/rest/books/book/" + id.toString());
 		httpClient.execute(httpDelete);
 	}

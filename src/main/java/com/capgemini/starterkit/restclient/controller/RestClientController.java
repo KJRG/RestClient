@@ -33,6 +33,9 @@ import javafx.scene.control.TextField;
  *
  * @author Krzysztof
  */
+/*
+ * REV: lepsza nazwa to BookSearchController, to klasa nie ma pojecia o RESTach
+ */
 public class RestClientController {
 
 	/**
@@ -209,11 +212,20 @@ public class RestClientController {
 					 */
 					BookVO addedBook = dataProvider.addBook(book);
 					if (addedBook.getTitle().startsWith(model.getTitle())) {
+						/*
+						 * REV: zmiana modelu musi byc robiona w watku JavaFX - metoda succeeded
+						 */
 						model.resultProperty().add(addedBook);
 					}
 				} catch (ClientProtocolException e) {
+					/*
+					 * REV: uzywaj loggera
+					 */
 					e.printStackTrace();
 				} catch (IOException e) {
+					/*
+					 * REV: j.w.
+					 */
 					e.printStackTrace();
 				}
 
@@ -222,7 +234,9 @@ public class RestClientController {
 
 			@Override
 			protected void succeeded() {
-
+				/*
+				 * REV: skoro pousta to nie trzeba przeciazac
+				 */
 			}
 
 		};
@@ -254,8 +268,14 @@ public class RestClientController {
 					 */
 					dataProvider.deleteBook(bookId);
 				} catch (ClientProtocolException e) {
+					/*
+					 * REV: rzucasz wyjatek, ale nei jest on nigdzie lapany
+					 */
 					throw e;
 				} catch (IOException e) {
+					/*
+					 * REV: j.w.
+					 */
 					throw e;
 				}
 

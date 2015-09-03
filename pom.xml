@@ -25,6 +25,7 @@
       <artifactId>httpclient</artifactId>
       <version>4.5</version>
     </dependency>
+    <!-- REV: ta biblioteka nie jest uzywana -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>fluent-hc</artifactId>
