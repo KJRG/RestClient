@@ -30,8 +30,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class DataProviderImpl implements DataProvider {
 
+	private CloseableHttpClient httpClient;
+
 	public DataProviderImpl() {
+		httpClient = HttpClients.createDefault();
 	}
+
 
 	@Override
 	public Collection<BookVO> findBooks(String title) throws ClientProtocolException, IOException {
@@ -39,7 +43,6 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create and execute HTTP GET request.
 		 */
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet("http://localhost:9721/workshop/rest/books/books-by-title?titlePrefix=" + title);
 		CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 		String response = EntityUtils.toString(httpResponse.getEntity());
@@ -70,7 +73,6 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create HTTP POST request.
 		 */
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost("http://localhost:9721/workshop/rest/books/book");
 		httpPost.addHeader("Content-Type", "application/json");
 
@@ -128,7 +130,6 @@ public class DataProviderImpl implements DataProvider {
 		/*
 		 * Create and execute HTTP DELETE request.
 		 */
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpDelete httpDelete = new HttpDelete("http://localhost:9721/workshop/rest/books/book/" + id.toString());
 		httpClient.execute(httpDelete);
 	}

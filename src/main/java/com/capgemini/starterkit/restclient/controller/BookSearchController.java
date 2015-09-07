@@ -33,7 +33,7 @@ import javafx.scene.control.TextField;
  *
  * @author Krzysztof
  */
-public class RestClientController {
+public class BookSearchController {
 
 	/**
 	 * <p>
@@ -93,7 +93,7 @@ public class RestClientController {
 	 * The @FXML annotated fields are not yet initialized at this point.
 	 * </p>
 	 */
-	public RestClientController() {
+	public BookSearchController() {
 	}
 
 	/**
@@ -194,12 +194,9 @@ public class RestClientController {
 
 		Task<Void> backgroundTask = new Task<Void>() {
 
-			// BookVO book = new BookVO(null,
-			// bookTitleField.textProperty().get(),
-			// new HashSet<AuthorVO>(Arrays.asList(new AuthorVO(null, "Test",
-			// "Author"))));
 			BookVO book = new BookVO(null, bookTitleField.textProperty().get(),
 					authorMapper.mapToSet(authorsField.textProperty().get()));
+			BookVO addedBook = null;
 
 			@Override
 			protected Void call() throws Exception {
@@ -207,10 +204,7 @@ public class RestClientController {
 					/*
 					 * Add the book.
 					 */
-					BookVO addedBook = dataProvider.addBook(book);
-					if (addedBook.getTitle().startsWith(model.getTitle())) {
-						model.resultProperty().add(addedBook);
-					}
+					addedBook = dataProvider.addBook(book);
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -223,6 +217,12 @@ public class RestClientController {
 			@Override
 			protected void succeeded() {
 
+				if(addedBook == null) {
+					return;
+				}
+				if (addedBook.getTitle().startsWith(model.getTitle())) {
+					model.resultProperty().add(addedBook);
+				}
 			}
 
 		};
